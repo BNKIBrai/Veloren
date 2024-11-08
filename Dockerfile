@@ -16,7 +16,7 @@ RUN apt-get update \
         net-tools \
     && rm -rf /var/lib/apt/lists/*;
 
-COPY ./target/debug/veloren-server-cli.d /opt/veloren-server-cli
+COPY ./veloren-server-cli /opt/veloren-server-cli
 COPY ./assets/common /opt/assets/common
 COPY ./assets/server /opt/assets/server
 COPY ./assets/world /opt/assets/world
