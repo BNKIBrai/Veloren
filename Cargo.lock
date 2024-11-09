@@ -521,7 +521,7 @@ dependencies = [
  "bitflags 2.6.0",
  "cexpr",
  "clang-sys",
- "itertools 0.13.0",
+ "itertools 0.10.5",
  "proc-macro2 1.0.86",
  "quote 1.0.37",
  "regex",
@@ -2686,9 +2686,9 @@ dependencies = [
 
 [[package]]
 name = "glam"
-version = "0.29.2"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc46dd3ec48fdd8e693a98d2b8bafae273a2d54c1de02a2a7e3d57d501f39677"
+checksum = "c28091a37a5d09b555cb6628fd954da299b536433834f5b8e59eba78e0cbbf8a"
 dependencies = [
  "mint",
 ]
@@ -3621,7 +3621,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dc562c3c440485a06d529f68bcff850c4eb58ba4caddf14fa12cd6077acce17c"
 dependencies = [
  "cpal",
- "glam 0.29.2",
+ "glam 0.29.0",
  "mint",
  "paste",
  "ringbuf",
