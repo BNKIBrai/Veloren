@@ -288,6 +288,7 @@ widget_ids! {
         gpu_timings[],
         weather,
         song_info,
+        active_channels,
 
         // Game Version
         version,
@@ -667,6 +668,7 @@ pub struct DebugInfo {
     pub num_particles_visible: u32,
     pub current_track: String,
     pub current_artist: String,
+    pub active_channels: [usize; 4],
 }
 
 pub struct HudInfo {
@@ -2044,6 +2046,7 @@ impl Hud {
                     vec![(
                         Some(GameInput::Interact),
                         i18n.get_msg("hud-pick_up").to_string(),
+                        overitem::TEXT_COLOR,
                     )],
                 )
                 .set(overitem_id, ui_widgets);
@@ -2075,17 +2078,19 @@ impl Hud {
                 let pos = mat.mul_point(Vec3::broadcast(0.5));
                 let over_pos = pos + Vec3::unit_z() * 0.7;
 
-                let interaction_text = |collect_default| match interaction {
+                let interaction_text = |collect_default, color| match interaction {
                     BlockInteraction::Collect => {
                         vec![(
                             Some(GameInput::Interact),
                             i18n.get_msg(collect_default).to_string(),
+                            color,
                         )]
                     },
                     BlockInteraction::Craft(_) => {
                         vec![(
                             Some(GameInput::Interact),
                             i18n.get_msg("hud-use").to_string(),
+                            color,
                         )]
                     },
                     BlockInteraction::Unlock(kind) => {
@@ -2101,19 +2106,23 @@ impl Hud {
                                 .unwrap_or_else(|| "modular item".to_string())
                         };
 
-                        vec![(Some(GameInput::Interact), match kind {
-                            UnlockKind::Free => i18n.get_msg("hud-open").to_string(),
-                            UnlockKind::Requires(item_id) => i18n
-                                .get_msg_ctx("hud-unlock-requires", &i18n::fluent_args! {
-                                    "item" => item_name(item_id),
-                                })
-                                .to_string(),
-                            UnlockKind::Consumes(item_id) => i18n
-                                .get_msg_ctx("hud-unlock-requires", &i18n::fluent_args! {
-                                    "item" => item_name(item_id),
-                                })
-                                .to_string(),
-                        })]
+                        vec![(
+                            Some(GameInput::Interact),
+                            match kind {
+                                UnlockKind::Free => i18n.get_msg("hud-open").to_string(),
+                                UnlockKind::Requires(item_id) => i18n
+                                    .get_msg_ctx("hud-unlock-requires", &i18n::fluent_args! {
+                                        "item" => item_name(item_id),
+                                    })
+                                    .to_string(),
+                                UnlockKind::Consumes(item_id) => i18n
+                                    .get_msg_ctx("hud-unlock-requires", &i18n::fluent_args! {
+                                        "item" => item_name(item_id),
+                                    })
+                                    .to_string(),
+                            },
+                            color,
+                        )]
                     },
                     BlockInteraction::Mine(mine_tool) => {
                         match (mine_tool, &info.active_mine_tool) {
@@ -2121,24 +2130,35 @@ impl Hud {
                                 vec![(
                                     Some(GameInput::Primary),
                                     i18n.get_msg("hud-mine").to_string(),
+                                    color,
                                 )]
                             },
                             (ToolKind::Pick, _) => {
-                                vec![(None, i18n.get_msg("hud-mine-needs_pickaxe").to_string())]
+                                vec![(
+                                    None,
+                                    i18n.get_msg("hud-mine-needs_pickaxe").to_string(),
+                                    color,
+                                )]
                             },
                             (ToolKind::Shovel, Some(ToolKind::Shovel)) => {
                                 vec![(
                                     Some(GameInput::Primary),
                                     i18n.get_msg("hud-dig").to_string(),
+                                    color,
                                 )]
                             },
                             (ToolKind::Shovel, _) => {
-                                vec![(None, i18n.get_msg("hud-mine-needs_shovel").to_string())]
+                                vec![(
+                                    None,
+                                    i18n.get_msg("hud-mine-needs_shovel").to_string(),
+                                    color,
+                                )]
                             },
                             _ => {
                                 vec![(
                                     None,
                                     i18n.get_msg("hud-mine-needs_unhandled_case").to_string(),
+                                    color,
                                 )]
                             },
                         }
@@ -2154,11 +2174,12 @@ impl Hud {
                             ) => "hud-lay",
                             _ => "hud-sit",
                         };
-                        vec![(Some(GameInput::Mount), i18n.get_msg(key).to_string())]
+                        vec![(Some(GameInput::Mount), i18n.get_msg(key).to_string(), color)]
                     },
                     BlockInteraction::Read(_) => vec![(
                         Some(GameInput::Interact),
                         i18n.get_msg("hud-read").to_string(),
+                        color,
                     )],
                     // TODO: change to turn on/turn off?
                     BlockInteraction::LightToggle(enable) => vec![(
@@ -2169,6 +2190,7 @@ impl Hud {
                             "hud-deactivate"
                         })
                         .to_string(),
+                        color,
                     )],
                 };
 
@@ -2178,6 +2200,12 @@ impl Hud {
                     .filter(|s| s.is_container())
                     .and_then(|s| get_sprite_desc(s, i18n))
                 {
+                    let (text, color) = if block.is_owned() {
+                        ("hud-steal", overitem::NEGATIVE_TEXT_COLOR)
+                    } else {
+                        ("hud-open", overitem::TEXT_COLOR)
+                    };
+
                     overitem::Overitem::new(
                         desc,
                         overitem::TEXT_COLOR,
@@ -2188,7 +2216,7 @@ impl Hud {
                         overitem_properties,
                         self.pulse,
                         &global_state.window.key_layout,
-                        interaction_text("hud-open"),
+                        interaction_text(text, color),
                     )
                     .x_y(0.0, 100.0)
                     .position_ingame(over_pos)
@@ -2202,6 +2230,11 @@ impl Hud {
                     .flatten()
                     .next()
                 {
+                    let (text, color) = if block.is_owned() {
+                        ("hud-steal", overitem::NEGATIVE_TEXT_COLOR)
+                    } else {
+                        ("hud-collect", overitem::TEXT_COLOR)
+                    };
                     item.set_amount(amount.clamp(1, item.max_amount()))
                         .expect("amount >= 1 and <= max_amount is always a valid amount");
                     make_overitem(
@@ -2210,11 +2243,16 @@ impl Hud {
                         pos.distance_squared(player_pos),
                         overitem_properties,
                         &self.fonts,
-                        interaction_text("hud-collect"),
+                        interaction_text(text, color),
                     )
                     .set(overitem_id, ui_widgets);
                 } else if let Some(desc) = block.get_sprite().and_then(|s| get_sprite_desc(s, i18n))
                 {
+                    let (text, color) = if block.is_owned() {
+                        ("hud-steal", overitem::NEGATIVE_TEXT_COLOR)
+                    } else {
+                        ("hud-collect", overitem::TEXT_COLOR)
+                    };
                     overitem::Overitem::new(
                         desc,
                         overitem::TEXT_COLOR,
@@ -2225,7 +2263,7 @@ impl Hud {
                         overitem_properties,
                         self.pulse,
                         &global_state.window.key_layout,
-                        interaction_text("hud-collect"),
+                        interaction_text(text, color),
                     )
                     .x_y(0.0, 100.0)
                     .position_ingame(over_pos)
@@ -2283,6 +2321,7 @@ impl Hud {
                                 "hud-use"
                             })
                             .to_string(),
+                            overitem::TEXT_COLOR,
                         )],
                     )
                     .x_y(0.0, 100.0)
@@ -2897,11 +2936,23 @@ impl Hud {
             .font_id(self.fonts.cyri.conrod_id)
             .font_size(self.fonts.cyri.scale(14))
             .set(self.ids.song_info, ui_widgets);
+            Text::new(&format!(
+                "Active channels: M{}, A{}, S{}, U{}",
+                debug_info.active_channels[0],
+                debug_info.active_channels[1],
+                debug_info.active_channels[2],
+                debug_info.active_channels[3],
+            ))
+            .color(TEXT_COLOR)
+            .down_from(self.ids.song_info, V_PAD)
+            .font_id(self.fonts.cyri.conrod_id)
+            .font_size(self.fonts.cyri.scale(14))
+            .set(self.ids.active_channels, ui_widgets);
 
             // Number of lights
             Text::new(&format!("Lights: {}", debug_info.num_lights,))
                 .color(TEXT_COLOR)
-                .down_from(self.ids.song_info, V_PAD)
+                .down_from(self.ids.active_channels, V_PAD)
                 .font_id(self.fonts.cyri.conrod_id)
                 .font_size(self.fonts.cyri.scale(14))
                 .set(self.ids.num_lights, ui_widgets);
@@ -3393,6 +3444,7 @@ impl Hud {
                     &msm,
                     tooltip_manager,
                     &mut self.show,
+                    &global_state.settings,
                 )
                 .set(self.ids.crafting_window, ui_widgets)
                 {
@@ -3472,6 +3524,13 @@ impl Hud {
                                 });
                             }
                         },
+                        crafting::Event::ShowAllRecipes(show) => {
+                            events.push(Event::SettingsChange(SettingsChange::Gameplay(
+                                crate::session::settings_change::Gameplay::ChangeShowAllRecipes(
+                                    show,
+                                ),
+                            )));
+                        },
                     }
                 }
             }
@@ -3481,7 +3540,8 @@ impl Hud {
             Subtitles::new(
                 client,
                 &global_state.settings,
-                &global_state.audio.get_listener().clone(),
+                global_state.audio.get_listener_pos(),
+                global_state.audio.get_listener_ori(),
                 &mut global_state.audio.subtitles,
                 &self.fonts,
                 i18n,
@@ -5318,7 +5378,10 @@ pub fn get_sprite_desc(sprite: SpriteKind, localized_strings: &Localization) -> 
         | SpriteKind::TerracottaChest => "common-sprite-chest",
         SpriteKind::Mud => "common-sprite-mud",
         SpriteKind::Grave => "common-sprite-grave",
-        SpriteKind::ChairSingle | SpriteKind::ChairDouble => "common-sprite-chair",
+        SpriteKind::ChairSingle
+        | SpriteKind::ChairDouble
+        | SpriteKind::Bench
+        | SpriteKind::BenchCoastal => "common-sprite-chair",
         SpriteKind::Crate => "common-sprite-crate",
         SpriteKind::HangingSign => "common-sprite-signboard",
         SpriteKind::StreetLamp => "common-sprite-street_lamp",

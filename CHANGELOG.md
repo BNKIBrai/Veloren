@@ -42,6 +42,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Wild Legoom and Goblin mobs
 - Bloodservants, Strigoi, and Scarlet Spectacles added to Halloween event
 - IP Bans
+- Npcs can catch you stealing.
+- Button to show unknown recipes.
+- Water splashes and river particles.
+- Custom furniture for Coastal Houses
 
 ### Changed
 
@@ -67,6 +71,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Revamped armor stat scaling, akin to weapons.
 - (un)equipping sceptres and staffs changed to default sound
 - Sprite deletion timeouts added for spider webs and Harvester vines
+- RiposteMelee attacks have a recovery phase after missing
+- Switched from Rodio to Kira
+- Ambient noise now gets filtered when underwater.
+- Renamed Site Savannah Pit to Savannah Town
+- Replaced building Savannah Pit with Savannah Town Airship Dock
 
 ### Removed
 
@@ -92,6 +101,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Naming of entries in controls settings.
 - Percentage values in descriptions of potion sickness and agility potion.
 - Potentially fixed graphical issues with the vulkan backend on AMD windows platforms.
+- Default audio settings button now works properly.
+- Positional audio is less glitchy.
+- Thunder sfx (corresponding with lightning) is now controlled by ambience volume.
+- Moderator badge alignment.
 
 ## [0.16.0] - 2024-03-30
 

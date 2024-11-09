@@ -103,6 +103,8 @@ sprites! {
         WardrobeSingleMesa = 0x1B,
         WardrobeDoubleMesa = 0x1C,
         CupboardMesa       = 0x1D,
+        TableCoastalLarge  = 0x1E,
+        BenchCoastal       = 0x1F,
         // Crafting
         CraftingBench    = 0x20,
         Forge            = 0x21,
@@ -114,23 +116,6 @@ sprites! {
         Loom             = 0x27,
         DismantlingBench = 0x28,
         RepairBench      = 0x29,
-        // Containers
-        Chest             = 0x30,
-        DungeonChest0     = 0x31,
-        DungeonChest1     = 0x32,
-        DungeonChest2     = 0x33,
-        DungeonChest3     = 0x34,
-        DungeonChest4     = 0x35,
-        DungeonChest5     = 0x36,
-        CoralChest        = 0x37,
-        HaniwaUrn         = 0x38,
-        TerracottaChest   = 0x39,
-        SahaginChest      = 0x3A,
-        CommonLockedChest = 0x3B,
-        ChestBuried       = 0x3C,
-        Crate             = 0x3D,
-        Barrel            = 0x3E,
-        CrateBlock        = 0x3F,
         // Wall
         HangingBasket     = 0x50,
         HangingSign       = 0x51,
@@ -155,7 +140,7 @@ sprites! {
         Hearth         = 0x72,
     },
     // Sprites representing plants that may grow over time (this does not include plant parts, like fruit).
-    Plant = 3 has Growth {
+    Plant = 3 has Growth, Owned {
         // Cacti
         BarrelCactus    = 0x00,
         RoundCactus     = 0x01,
@@ -251,7 +236,7 @@ sprites! {
     },
     // Solid resources
     // TODO: Remove small variants, make deposit size be an attribute
-    Resources = 4 {
+    Resource = 4 has Owned {
         // Gems and ores
         // Woods and twigs
         Twigs     = 0x00,
@@ -369,21 +354,22 @@ sprites! {
         DiamondLight   = 0x0A,
 
         // Artificial
-        Gravestone       = 0x10,
-        Melon            = 0x11,
-        ForgeTools       = 0x12,
-        JugAndBowlArabic = 0x13,
-        JugArabic        = 0x14,
-        DecorSetArabic   = 0x15,
-        SepareArabic     = 0x16,
-        Candle           = 0x17,
-        SmithingTable    = 0x18,
-        Forge0           = 0x19,
-        GearWheel0       = 0x1A,
-        Quench0          = 0x1B,
-        SeaDecorEmblem   = 0x1C,
-        SeaDecorPillar   = 0x1D,
-        MagicalSeal      = 0x1E,
+        Gravestone        = 0x10,
+        Melon             = 0x11,
+        ForgeTools        = 0x12,
+        JugAndBowlArabic  = 0x13,
+        JugArabic         = 0x14,
+        DecorSetArabic    = 0x15,
+        SepareArabic      = 0x16,
+        Candle            = 0x17,
+        SmithingTable     = 0x18,
+        Forge0            = 0x19,
+        GearWheel0        = 0x1A,
+        Quench0           = 0x1B,
+        SeaDecorEmblem    = 0x1C,
+        SeaDecorPillar    = 0x1D,
+        MagicalSeal       = 0x1E,
+        JugAndCupsCoastal = 0x1F,
     },
     Lamp = 8 has Ori, LightEnabled {
         // Standalone lights
@@ -394,6 +380,24 @@ sprites! {
         FireBowlGround  = 4,
         MesaLantern     = 5,
     },
+    Container = 9 has Ori, Owned {
+        Chest             = 0x00,
+        DungeonChest0     = 0x01,
+        DungeonChest1     = 0x02,
+        DungeonChest2     = 0x03,
+        DungeonChest3     = 0x04,
+        DungeonChest4     = 0x05,
+        DungeonChest5     = 0x06,
+        CoralChest        = 0x07,
+        HaniwaUrn         = 0x08,
+        TerracottaChest   = 0x09,
+        SahaginChest      = 0x0A,
+        CommonLockedChest = 0x0B,
+        ChestBuried       = 0x0C,
+        Crate             = 0x0D,
+        Barrel            = 0x0E,
+        CrateBlock        = 0x0F,
+    },
 }
 
 attributes! {
@@ -401,6 +405,7 @@ attributes! {
     Growth { bits: 4, err: Infallible, from: |bits| Ok(Self(bits as u8)), into: |Growth(x)| x as u16 },
     LightEnabled { bits: 1, err: Infallible, from: |bits| Ok(Self(bits == 1)), into: |LightEnabled(x)| x as u16 },
     Damage { bits: 3, err: Infallible, from: |bits| Ok(Self(bits as u8)), into: |Damage(x)| x as u16 },
+    Owned { bits: 1, err: Infallible, from: |bits| Ok(Self(bits == 1)), into: |Owned(x)| x as u16 },
 }
 
 // The orientation of the sprite, 0..16
@@ -418,6 +423,9 @@ impl Default for Growth {
 // Whether a light has been toggled on or off.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct LightEnabled(pub bool);
+
+#[derive(Default, Copy, Clone, Debug, PartialEq, Eq)]
+pub struct Owned(pub bool);
 
 impl Default for LightEnabled {
     fn default() -> Self { Self(true) }
@@ -577,10 +585,13 @@ impl SpriteKind {
             SpriteKind::JugArabic => 1.4,
             SpriteKind::TableArabicSmall => 0.9,
             SpriteKind::TableArabicLarge => 1.0,
+            SpriteKind::TableCoastalLarge => 1.0,
+            SpriteKind::BenchCoastal => 1.0,
             SpriteKind::CanapeArabic => 1.2,
             SpriteKind::CupboardArabic => 4.5,
             SpriteKind::WallTableArabic => 2.3,
             SpriteKind::JugAndBowlArabic => 1.4,
+            SpriteKind::JugAndCupsCoastal => 1.4,
             SpriteKind::Melon => 0.7,
             SpriteKind::OvenArabic => 3.2,
             SpriteKind::FountainArabic => 2.4,
@@ -756,9 +767,10 @@ impl SpriteKind {
     #[inline]
     pub fn mount_offset(&self) -> Option<(Vec3<f32>, Vec3<f32>)> {
         match self {
-            SpriteKind::ChairSingle | SpriteKind::ChairDouble | SpriteKind::Bench => {
-                Some((Vec3::new(0.0, 0.0, 0.5), -Vec3::unit_y()))
-            },
+            SpriteKind::ChairSingle
+            | SpriteKind::ChairDouble
+            | SpriteKind::Bench
+            | SpriteKind::BenchCoastal => Some((Vec3::new(0.0, 0.0, 0.5), -Vec3::unit_y())),
             SpriteKind::Helm => Some((Vec3::new(0.0, -1.0, 0.0), Vec3::unit_y())),
             SpriteKind::Bed => Some((Vec3::new(0.0, 0.0, 0.6), -Vec3::unit_y())),
             SpriteKind::BedMesa => Some((Vec3::new(0.0, 0.0, 0.6), -Vec3::unit_y())),

@@ -3,7 +3,7 @@
 // Biomes: Grassland, Forest, Desert, Snowland, Lake, Mountain, Ocean, Jungle, Savannah, Taiga
 //          planned biomes: Swamp
 // Number after biome indicates weighting; higher numbers are less frequent
-// Sites: Settlement(Default, CliffTown, DesertCity, or SavannahPit), Cave, Dungeon(Old or Gnarling), or Void [none]
+// Sites: Settlement(Default, CliffTown, DesertCity, or SavannahTown), Cave, Dungeon, or Void [none]
 // Music states: Activity(Explore or Combat)
 // Combat music is looped. Needs three files: start, loop, and end. Start contains leadup to the loop.
 // Artist format is ("Artist", "https://website.com/"). If no website, use None.
@@ -537,7 +537,7 @@
             biomes: [],
             sites: [
                 Settlement(CliffTown),
-                Settlement(SavannahPit),
+                Settlement(SavannahTown),
             ],
             music_state: Activity(Explore),
             artist: ("Stone Music Productions", "https://www.stonemusicproductions.com/"),
@@ -555,7 +555,7 @@
             sites: [
                 Settlement(Default),
                 Settlement(CliffTown),
-                Settlement(SavannahPit),
+                Settlement(SavannahTown),
             ],
             music_state: Activity(Explore),
             artist: ("GeekyGami", "https://geekygami.newgrounds.com/audio/"),
@@ -571,7 +571,7 @@
                 Settlement(Default),
                 Settlement(CliffTown),
                 Settlement(DesertCity),
-                Settlement(SavannahPit),
+                Settlement(SavannahTown),
             ],
             music_state: Activity(Explore),
             artist: ("Crow", None),
@@ -587,7 +587,7 @@
                 Settlement(Default),
                 Settlement(CliffTown),
                 Settlement(DesertCity),
-                Settlement(SavannahPit),
+                Settlement(SavannahTown),
             ],
             music_state: Activity(Explore),
             artist: ("Tobias Thy - (Thy SFX)", "https://soundcloud.com/thyofficial"),
@@ -602,7 +602,7 @@
             sites: [
                 Settlement(Default),
                 Settlement(CliffTown),
-                Settlement(SavannahPit),
+                Settlement(SavannahTown),
             ],
             music_state: Activity(Explore),
             artist: ("phoenix13032005", None),
@@ -618,7 +618,7 @@
                 Settlement(Default),
                 Settlement(CliffTown),
                 Settlement(DesertCity),
-                Settlement(SavannahPit),
+                Settlement(SavannahTown),
             ],
             music_state: Activity(Explore),
             artist: ("Oolnokk; mixed by cereal7", "https://soundcloud.com/walkerhallplaysthegeetar"),
@@ -633,7 +633,7 @@
             sites: [
                 Settlement(Default),
                 Settlement(CliffTown),
-                Settlement(SavannahPit),
+                Settlement(SavannahTown),
             ],
             music_state: Activity(Explore),
             artist: ("DaforLynx", "https://daforlynx.neocities.org/"),
@@ -649,7 +649,7 @@
                 Settlement(Default),
                 Settlement(CliffTown),
                 Settlement(DesertCity),
-                Settlement(SavannahPit),
+                Settlement(SavannahTown),
             ],
             music_state: Activity(Explore),
             artist: ("DaforLynx", "https://daforlynx.neocities.org/"),
@@ -677,7 +677,7 @@
             sites: [
                 Settlement(Default),
                 Settlement(CliffTown),
-                Settlement(SavannahPit),
+                Settlement(SavannahTown),
             ],
             music_state: Activity(Explore),
             artist: ("badbbad", "https://soundcloud.com/tomerbarnea"),
@@ -692,7 +692,7 @@
             sites: [
                 Settlement(Default),
                 Settlement(CliffTown),
-                Settlement(SavannahPit),
+                Settlement(SavannahTown),
             ],
             music_state: Activity(Explore),
             artist: ("badbbad", "https://soundcloud.com/tomerbarnea"),
@@ -894,50 +894,50 @@
 
         // Combat Music
 
-        Segmented(
-            title: "Barred Paths",
-            timing: None,
-            weather: None,
-            biomes: [],
-            sites: [
-                Dungeon(Myrmidon),
-            ],
-            segments: [
-                ("voxygen.audio.soundtrack.combat.barred_paths.barred_paths-start", 61.818, Transition(Explore, Combat(High)), Some(Combat(High))),
-                ("voxygen.audio.soundtrack.combat.barred_paths.barred_paths-loop", 54.545, Activity(Combat(High)), None),
-                ("voxygen.audio.soundtrack.combat.barred_paths.barred_paths-end", 6.0, Transition(Combat(High), Explore), None),
-            ],
-            artist: ("DaforLynx", "https://daforlynx.neocities.org/"),
-        ),
-        Segmented(
-            title: "Reversal",
-            timing: None,
-            weather: None,
-            biomes: [],
-            sites: [
-                Dungeon(Myrmidon),
-            ],
-            segments: [
-                ("voxygen.audio.soundtrack.combat.reversal.reversal-start", 61.666, Transition(Explore, Combat(High)), Some(Combat(High))),
-                ("voxygen.audio.soundtrack.combat.reversal.reversal-loop", 60.0, Activity(Combat(High)), None),
-                ("voxygen.audio.soundtrack.combat.reversal.reversal-end", 3.666, Transition(Combat(High), Explore), None),
-            ],
-            artist: ("DaforLynx", "https://daforlynx.neocities.org/"),
-        ),
-        Segmented(
-            title: "Clash",
-            timing: None,
-            weather: None,
-            biomes: [],
-            sites: [
-                Dungeon(Myrmidon),
-            ],
-            segments: [
-                ("voxygen.audio.soundtrack.combat.clash.clash-start", 121.5, Transition(Explore, Combat(High)), Some(Combat(High))),
-                ("voxygen.audio.soundtrack.combat.clash.clash-loop", 81.0, Activity(Combat(High)), None),
-                ("voxygen.audio.soundtrack.combat.clash.clash-end", 1.5, Transition(Combat(High), Explore), None),
-            ],
-            artist: ("Alfredo Pompa D & Rodriogo Plata", None),
-        ),
+        // Segmented(
+        //     title: "Barred Paths",
+        //     timing: None,
+        //     weather: None,
+        //     biomes: [],
+        //     sites: [
+        //         Dungeon(Old),
+        //     ],
+        //     segments: [
+        //         ("voxygen.audio.soundtrack.combat.barred_paths.barred_paths-start", 61.818, Transition(Explore, Combat(High)), Some(Combat(High))),
+        //         ("voxygen.audio.soundtrack.combat.barred_paths.barred_paths-loop", 54.545, Activity(Combat(High)), None),
+        //         ("voxygen.audio.soundtrack.combat.barred_paths.barred_paths-end", 6.0, Transition(Combat(High), Explore), None),
+        //     ],
+        //     artist: ("DaforLynx", "https://daforlynx.neocities.org/"),
+        // ),
+        // Segmented(
+        //     title: "Reversal",
+        //     timing: None,
+        //     weather: None,
+        //     biomes: [],
+        //     sites: [
+        //         Dungeon(Old),
+        //     ],
+        //     segments: [
+        //         ("voxygen.audio.soundtrack.combat.reversal.reversal-start", 61.666, Transition(Explore, Combat(High)), Some(Combat(High))),
+        //         ("voxygen.audio.soundtrack.combat.reversal.reversal-loop", 60.0, Activity(Combat(High)), None),
+        //         ("voxygen.audio.soundtrack.combat.reversal.reversal-end", 3.666, Transition(Combat(High), Explore), None),
+        //     ],
+        //     artist: ("DaforLynx", "https://daforlynx.neocities.org/"),
+        // ),
+        // Segmented(
+        //     title: "Clash",
+        //     timing: None,
+        //     weather: None,
+        //     biomes: [],
+        //     sites: [
+        //         Dungeon(Old),
+        //     ],
+        //     segments: [
+        //         ("voxygen.audio.soundtrack.combat.clash.clash-start", 121.5, Transition(Explore, Combat(High)), Some(Combat(High))),
+        //         ("voxygen.audio.soundtrack.combat.clash.clash-loop", 81.0, Activity(Combat(High)), None),
+        //         ("voxygen.audio.soundtrack.combat.clash.clash-end", 1.5, Transition(Combat(High), Explore), None),
+        //     ],
+        //     artist: ("Alfredo Pompa D & Rodriogo Plata", None),
+        // ),
     ]
 )
