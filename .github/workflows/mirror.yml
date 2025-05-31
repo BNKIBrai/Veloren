@@ -1,1 +1,44 @@
+name: Sync Veloren to New Branch
 
+on:
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout GitHub repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        lfs: false
+    
+    - name: Set up Git config
+      run: |
+        git config user.name "Veloren Sync Bot"
+        git config user.email "sync-bot@github.com"
+    
+    - name: Sync GitLab to new branch
+      run: |
+        # Create branch name with timestamp
+        BRANCH_NAME="gitlab-sync-$(date +%Y%m%d-%H%M%S)"
+        echo "Creating branch: $BRANCH_NAME"
+        
+        # Add GitLab remote
+        git remote add gitlab https://gitlab.com/veloren/veloren.git
+        
+        # Allow incomplete LFS pushes
+        git config lfs.allowincompletepush true
+        
+        # Fetch GitLab master
+        git fetch gitlab master
+        
+        # Create new branch from GitLab master
+        git checkout -b $BRANCH_NAME gitlab/master
+        
+        # Push new branch to GitHub
+        git push origin $BRANCH_NAME
+        
+        echo "✅ Successfully created branch: $BRANCH_NAME"
+        echo "You can now merge this branch into master manually."
