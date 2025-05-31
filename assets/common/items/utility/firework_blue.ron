@@ -1,9 +1,0 @@
-ItemDef(
-    legacy_name: "Firework Blue",
-    legacy_description: "Recommended clearance: 42 chonks",
-    kind: Throwable(
-        kind: Firework(Blue),
-    ),
-    quality: Moderate,
-    tags: [Utility],
-)
