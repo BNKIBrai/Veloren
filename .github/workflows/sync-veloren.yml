@@ -1,0 +1,58 @@
+name: Sync Veloren from GitLab
+
+on:
+  schedule:
+    # Run daily at midnight UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allows manual triggering
+  
+env:
+  GITLAB_REPO: "veloren/veloren"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout GitHub repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Git config
+      run: |
+        git config user.name "GitLab Sync Bot"
+        git config user.email "sync-bot@github.com"
+    
+    - name: Add GitLab remote
+      run: |
+        git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/${{ env.GITLAB_REPO }}.git
+    
+    - name: Fetch from GitLab
+      run: |
+        git fetch gitlab --prune
+    
+    - name: Check for changes
+      id: changes
+      run: |
+        if git diff --quiet HEAD gitlab/master; then
+          echo "No changes detected"
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+        else
+          echo "Changes detected"
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Sync main branch from GitLab master
+      if: steps.changes.outputs.has_changes == 'true'
+      run: |
+        # Force update to match GitLab master exactly
+        git reset --hard gitlab/master
+        git push origin main --force-with-lease
+    
+    - name: Sync tags
+      if: steps.changes.outputs.has_changes == 'true'
+      run: |
+        git fetch gitlab --tags
+        git push origin --tags --force
