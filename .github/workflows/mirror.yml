@@ -1,65 +1,38 @@
-name: Sync Veloren to New Branch
+name: Clean Repository
 
 on:
   workflow_dispatch:
 
 jobs:
-  sync:
+  clean:
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout GitHub repo
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        ref: master
+        fetch-depth: 1
         lfs: false
     
     - name: Set up Git config
       run: |
-        git config user.name "Veloren Sync Bot"
-        git config user.email "sync-bot@github.com"
+        git config user.name "Repo Cleaner Bot"
+        git config user.email "cleaner-bot@github.com"
     
-    - name: Sync GitLab to new branch
+    - name: Delete everything except workflows
       run: |
-        # Create branch name with timestamp
-        BRANCH_NAME="gitlab-sync-$(date +%Y%m%d-%H%M%S)"
-        echo "Creating branch: $BRANCH_NAME"
+        # Keep only .github directory and README if it exists
+        find . -maxdepth 1 -type f -not -name "README.md" -delete
+        find . -maxdepth 1 -type d -not -name "." -not -name ".git" -not -name ".github" -exec rm -rf {} +
         
-        # Add GitLab remote
-        git remote add gitlab https://gitlab.com/veloren/veloren.git
+        # Show what's left
+        echo "Files remaining:"
+        ls -la
         
-        # Completely disable LFS operations
-        export GIT_LFS_SKIP_SMUDGE=1
-        git config lfs.allowincompletepush true
-        git config filter.lfs.clean "cat"
-        git config filter.lfs.smudge "cat"
-        git config filter.lfs.process ""
-        git config filter.lfs.required false
+        # Commit the deletion
+        git add -A
+        git commit -m "Clean repository - remove all files except workflows"
+        git push origin master
         
-        # Fetch GitLab master
-        git fetch gitlab master
-        
-        # Create new branch from GitLab master
-        git checkout -b $BRANCH_NAME gitlab/master
-        
-        # Temporarily hide .gitattributes to prevent LFS detection
-        if [ -f .gitattributes ]; then
-          mv .gitattributes .gitattributes.hidden
-          git add .gitattributes.hidden
-          git rm .gitattributes
-          git commit -m "Temporarily remove LFS tracking for push"
-        fi
-        
-        # Push new branch to GitHub (now LFS files will be treated as regular files)
-        git push origin $BRANCH_NAME
-        
-        # Restore .gitattributes
-        if [ -f .gitattributes.hidden ]; then
-          mv .gitattributes.hidden .gitattributes
-          git add .gitattributes
-          git commit -m "Restore LFS tracking"
-          git push origin $BRANCH_NAME
-        fi
-        
-        echo "✅ Successfully created branch: $BRANCH_NAME"
-        echo "You can now merge this branch into master manually."
+        echo "✅ Repository cleaned. Only .github/ directory and workflows remain."
