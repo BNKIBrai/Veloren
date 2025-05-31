@@ -39,11 +39,27 @@ jobs:
         # Fetch GitLab master
         git fetch gitlab master
         
-        # Create new branch from GitLab master (without downloading LFS files)
+        # Create new branch from GitLab master
         git checkout -b $BRANCH_NAME gitlab/master
         
-        # Push new branch to GitHub
+        # Temporarily hide .gitattributes to prevent LFS detection
+        if [ -f .gitattributes ]; then
+          mv .gitattributes .gitattributes.hidden
+          git add .gitattributes.hidden
+          git rm .gitattributes
+          git commit -m "Temporarily remove LFS tracking for push"
+        fi
+        
+        # Push new branch to GitHub (now LFS files will be treated as regular files)
         git push origin $BRANCH_NAME
+        
+        # Restore .gitattributes
+        if [ -f .gitattributes.hidden ]; then
+          mv .gitattributes.hidden .gitattributes
+          git add .gitattributes
+          git commit -m "Restore LFS tracking"
+          git push origin $BRANCH_NAME
+        fi
         
         echo "✅ Successfully created branch: $BRANCH_NAME"
         echo "You can now merge this branch into master manually."
