@@ -1,30 +1,9 @@
-- name: Add GitLab remote and sync
-      run: |
-        # Add GitLab remote
-        git remote add gitlab https://gitlab.com/veloren/veloren.git
-        
-        # Disable LFS smudging and pushing for the entire process
-        export GIT_LFS_SKIP_SMUDGE=1
-        export GIT_LFS_SKIP_PUSH=1
-        
-        # Fetch everything from GitLab (gets pointer files, not actual LFS objects)
-        git fetch gitlab master
-        
-        # Force reset to exactly match GitLab master (including pointer files)
-        git reset --hard gitlab/master
-        
-        # Force push to GitHub master (syncs pointer files without uploading LFS objects)
-        git push origin master --force
-        
-        # Sync tags as well
-        git fetch gitlab --tags
-        git push origin --tags --forcename: Sync Veloren Master from GitLab
+name: Sync Veloren Master from GitLab
 
 on:
   schedule:
-    # Run daily at midnight UTC
     - cron: '0 0 * * *'
-  workflow_dispatch: # Allows manual triggering
+  workflow_dispatch:
 
 jobs:
   sync:
@@ -34,10 +13,10 @@ jobs:
     - name: Checkout GitHub repo
       uses: actions/checkout@v4
       with:
-        ref: master  # Checkout master branch
+        ref: master
         fetch-depth: 0
         token: ${{ secrets.GITHUB_TOKEN }}
-        lfs: false  # Don't download LFS files from GitHub
+        lfs: false
     
     - name: Set up Git config
       run: |
@@ -46,21 +25,14 @@ jobs:
     
     - name: Add GitLab remote and sync
       run: |
-        # Add GitLab remote
         git remote add gitlab https://gitlab.com/veloren/veloren.git
         
-        # Skip LFS entirely for the whole process
         export GIT_LFS_SKIP_SMUDGE=1
+        export GIT_LFS_SKIP_PUSH=1
         
-        # Fetch everything from GitLab without LFS
         git fetch gitlab master
-        
-        # Force reset to exactly match GitLab master (no LFS)
         git reset --hard gitlab/master
-        
-        # Force push to GitHub master (this will only push pointer files for LFS)
         git push origin master --force
         
-        # Sync tags as well
         git fetch gitlab --tags
         git push origin --tags --force
