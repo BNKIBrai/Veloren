@@ -37,6 +37,9 @@ jobs:
         # Add GitLab remote
         git remote add gitlab https://gitlab.com/veloren/veloren.git
         
+        # Allow incomplete LFS pushes (only push what exists)
+        git config lfs.allowincompletepush true
+        
         # Fetch everything from GitLab (skip LFS initially to avoid errors)
         GIT_LFS_SKIP_SMUDGE=1 git fetch gitlab master
         
@@ -46,11 +49,8 @@ jobs:
         # Try to download available LFS files (ignore missing ones)
         git lfs pull 2>/dev/null || echo "Downloaded available LFS files"
         
-        # Force push to GitHub master (overwrite everything)
+        # Force push to GitHub master (this will handle LFS files automatically)
         git push origin master --force
-        
-        # Push any available LFS files
-        git lfs push origin master 2>/dev/null || echo "Pushed available LFS files"
         
         # Sync tags as well
         git fetch gitlab --tags
