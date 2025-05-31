@@ -28,13 +28,18 @@ jobs:
         # Add GitLab remote
         git remote add gitlab https://gitlab.com/veloren/veloren.git
         
-        # Allow incomplete LFS pushes
+        # Completely disable LFS operations
+        export GIT_LFS_SKIP_SMUDGE=1
         git config lfs.allowincompletepush true
+        git config filter.lfs.clean "cat"
+        git config filter.lfs.smudge "cat"
+        git config filter.lfs.process ""
+        git config filter.lfs.required false
         
         # Fetch GitLab master
         git fetch gitlab master
         
-        # Create new branch from GitLab master
+        # Create new branch from GitLab master (without downloading LFS files)
         git checkout -b $BRANCH_NAME gitlab/master
         
         # Push new branch to GitHub
