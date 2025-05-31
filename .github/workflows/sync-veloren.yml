@@ -39,7 +39,7 @@ jobs:
     - name: Fetch from GitLab with LFS
       run: |
         git fetch gitlab --prune
-        git lfs fetch gitlab master
+        git lfs fetch gitlab
     
     - name: Check for changes
       id: changes
@@ -57,7 +57,7 @@ jobs:
       run: |
         # Force update to match GitLab master exactly
         git reset --hard gitlab/master
-        git lfs pull gitlab master
+        git lfs pull
         git push origin main --force-with-lease
     
     - name: Sync tags
@@ -69,4 +69,4 @@ jobs:
     - name: Push LFS files to GitHub
       if: steps.changes.outputs.has_changes == 'true'
       run: |
-        git lfs push origin main --all
+        git lfs push origin main
