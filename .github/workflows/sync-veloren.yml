@@ -26,6 +26,9 @@ jobs:
       run: |
         git remote add gitlab https://gitlab.com/veloren/veloren.git
         
+        # Allow incomplete LFS pushes (as suggested by the error)
+        git config lfs.allowincompletepush true
+        
         # Disable Git LFS filters entirely
         git config filter.lfs.clean "cat"
         git config filter.lfs.smudge "cat" 
