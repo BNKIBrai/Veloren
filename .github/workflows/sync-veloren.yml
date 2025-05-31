@@ -37,15 +37,7 @@ jobs:
         ref: master  # Checkout master branch
         fetch-depth: 0
         token: ${{ secrets.GITHUB_TOKEN }}
-        lfs: true
-    
-    - name: Install and configure Git LFS
-      run: |
-        sudo apt-get update
-        sudo apt-get install git-lfs
-        git lfs install
-        # Configure to continue on LFS errors
-        git config lfs.skipdownloaderrors true
+        lfs: false  # Don't download LFS files from GitHub
     
     - name: Set up Git config
       run: |
