@@ -1,9 +1,0 @@
-ItemDef(
-    legacy_name: "Training Dummy",
-    legacy_description: "His name is William. Fire at will.",
-    kind: Throwable(
-        kind: TrainingDummy,
-    ),
-    quality: Moderate,
-    tags: [Utility],
-)
