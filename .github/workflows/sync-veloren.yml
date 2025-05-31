@@ -19,6 +19,13 @@ jobs:
       with:
         fetch-depth: 0
         token: ${{ secrets.GITHUB_TOKEN }}
+        lfs: true # Enable LFS support
+    
+    - name: Install Git LFS
+      run: |
+        sudo apt-get update
+        sudo apt-get install git-lfs
+        git lfs install
     
     - name: Set up Git config
       run: |
@@ -29,9 +36,10 @@ jobs:
       run: |
         git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/${{ env.GITLAB_REPO }}.git
     
-    - name: Fetch from GitLab
+    - name: Fetch from GitLab with LFS
       run: |
         git fetch gitlab --prune
+        git lfs fetch gitlab master
     
     - name: Check for changes
       id: changes
@@ -49,6 +57,7 @@ jobs:
       run: |
         # Force update to match GitLab master exactly
         git reset --hard gitlab/master
+        git lfs pull gitlab master
         git push origin main --force-with-lease
     
     - name: Sync tags
@@ -56,3 +65,8 @@ jobs:
       run: |
         git fetch gitlab --tags
         git push origin --tags --force
+    
+    - name: Push LFS files to GitHub
+      if: steps.changes.outputs.has_changes == 'true'
+      run: |
+        git lfs push origin main --all
